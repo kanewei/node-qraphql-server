@@ -37,7 +37,7 @@ describe('User sign up and login', function(){
             }
         }
 
-        userResovler.createUser(query, {}).then(result => {
+        userResovler.createUser(query, {}, {}, () => {}).then(result => {
             expect(result).to.be.an('error');
             expect(result).to.have.property('statusCode', 422);
         })
@@ -55,7 +55,7 @@ describe('User sign up and login', function(){
             }
         }
 
-        userResovler.createUser(query, {}).then(result => {
+        userResovler.createUser(query, {}, {}, () => {}).then(result => {
             expect(result).to.be.an('error');
             expect(result).to.have.property('statusCode', 422);
         })
@@ -73,7 +73,7 @@ describe('User sign up and login', function(){
             }
         }
 
-        userResovler.createUser(query, {}).then(result => {
+        userResovler.createUser(query, {}, {}, () => {}).then(result => {
             expect(result).to.have.property('_id');
         })
         .then(() => {
@@ -87,7 +87,7 @@ describe('User sign up and login', function(){
             password: '123123'
         };
 
-        userResovler.login(query, {}).then(result => {
+        userResovler.login(query, {}, {}, () => {}).then(result => {
             expect(result).to.be.an('error');
             expect(result).to.have.property('statusCode', 404);
         })
@@ -104,7 +104,7 @@ describe('User sign up and login', function(){
 
         sinon.stub(validator, 'passwordValidate').returns(false);
 
-        userResovler.login(query, {}).then(result => {
+        userResovler.login(query, {}, {}, () => {}).then(result => {
             expect(result).to.be.an('error');
             expect(result).to.has.property('statusCode', 404);
         })
@@ -122,7 +122,7 @@ describe('User sign up and login', function(){
 
         sinon.stub(validator, 'passwordValidate').returns(true);
 
-        userResovler.login(query, {}).then(result => {
+        userResovler.login(query, {}, {}, () => {}).then(result => {
             expect(result).to.have.property('token');
         })
         .then(() => {
