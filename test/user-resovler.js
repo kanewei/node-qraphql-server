@@ -23,19 +23,17 @@ describe('User sign up and login', function(){
         })
         .then(() => {
             done();
-        })
+        });
+    });
 
-
-    })
-
-    it('sign up email, password, name invalid', function(done){
+    it('Sign up email, password, name invalid', function(done){
         const query = {
             userInput: {
                 email: 'test',
                 password: '123',
                 name: ''
             }
-        }
+        };
 
         userResovler.createUser(query, {}, {}, () => {}).then(result => {
             expect(result).to.be.an('error');
@@ -43,17 +41,17 @@ describe('User sign up and login', function(){
         })
         .then(() => {
             done();
-        })
+        });
     });
 
-    it('sign up email exist', function(done){
+    it('Sign up email exist', function(done){
         const query = {
             userInput: {
                 email: 'test@test.com',
                 password: '123123',
                 name: ''
             }
-        }
+        };
 
         userResovler.createUser(query, {}, {}, () => {}).then(result => {
             expect(result).to.be.an('error');
@@ -61,27 +59,27 @@ describe('User sign up and login', function(){
         })
         .then(() => {
             done();
-        })
+        });
     });
 
-    it('sign up success', function(done){
+    it('Sign up success', function(done){
         const query = {
             userInput: {
                 email: 'successtest@test.com',
                 password: '123123',
                 name: 'test'
             }
-        }
+        };
 
         userResovler.createUser(query, {}, {}, () => {}).then(result => {
             expect(result).to.have.property('_id');
         })
         .then(() => {
             done();
-        })
+        });
     });
 
-    it('login email not found', function(done){
+    it('Login email not found', function(done){
         const query = {
             email: 'failtest@test.com',
             password: '123123'
@@ -93,10 +91,10 @@ describe('User sign up and login', function(){
         })
         .then(() => {
             done();
-        })
+        });
     });
 
-    it('password not matched', function(done){
+    it('Password not matched', function(done){
         const query = {
             email: 'test@test.com',
             password: '123123'
@@ -111,10 +109,10 @@ describe('User sign up and login', function(){
         .then(() => {
             done();
             validator.passwordValidate.restore();
-        })
+        });
     });
     
-    it('login success', function(done){
+    it('Login success', function(done){
         const query = {
             email: 'test@test.com',
             password: '123123'
@@ -129,7 +127,7 @@ describe('User sign up and login', function(){
             done();
             validator.passwordValidate.restore();
         });   
-    })
+    });
 
     after(function(done){
         User.deleteMany({})
@@ -139,5 +137,5 @@ describe('User sign up and login', function(){
             .then(() => {
                 done();
             });
-    })
-})
+    });
+});

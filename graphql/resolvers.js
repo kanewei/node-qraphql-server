@@ -2,6 +2,7 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const User = require('../models/user');
+const Post = require('../models/post');
 const utiliValitor = require('../utili/validator');
 const jwt = require('jsonwebtoken');
 
@@ -91,5 +92,194 @@ module.exports = {
     
             return err;
         }
+    },
+
+    createPost: async function({postInput}, req, res, next) {
+        try{
+            if (!req.isAuth) {
+                const error = new Error('Not Authenticated!');
+                error.data = error;
+                error.statusCode = 401;
+                throw error;
+            }
+    
+            const errors = [];
+            if (validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, {
+                    min: 5
+                })) {
+                errors.push({
+                    message: 'Title is invaild'
+                });
+            }
+            if (validator.isEmpty(postInput.content) | !validator.isLength(postInput.content, {
+                    min: 5
+                })) {
+                errors.push({
+                    message: 'Content is invalid'
+                });
+            }
+            if (errors.length > 0) {
+                const error = new Error('Input invalid');
+                error.data = errors;
+                error.statusCode = 422;
+                throw error;
+            }
+
+            const user = await User.findById(req.userId);
+            if(!user){
+                const error = new Error('User not found');
+                error.data = error;
+                error.statusCode = 401;
+                throw error;
+            }
+
+            const post = new Post({
+                title: postInput.title,
+                content: postInput.content,
+                creator: req.userId
+            });
+
+            const createdPost = await post.save();
+            user.posts.push(createdPost);
+            await user.save();
+            return {
+                ...createdPost._doc,
+                _id: createdPost._id.toString(),
+                createdAt: createdPost.createdAt.toISOString(),
+                updatedAt: createdPost.updatedAt.toISOString()
+            };
+        }catch(err){
+            if(!err.statusCode)
+                err.statusCode = 500;
+    
+            return err;
+        }
+    },
+
+    getPosts: async function({}, req, res, next){
+        try{
+            if (!req.isAuth) {
+                const error = new Error('Not Authenticated!');
+                error.data = error;
+                error.statusCode = 401;
+                throw error;
+            }
+
+            const posts = await Post.find();
+
+            return {posts: posts.map(p => {
+                return {
+                    ...p._doc,
+                    _id: p._id.toString(),
+                    createdAt: p.createdAt.toISOString(),
+                    updatedAt: p.updatedAt.toISOString()
+                }
+            })};
+        }catch(err){
+            if(!err.statusCode)
+                err.statusCode = 500;
+    
+            return err;
+        } 
+    },
+
+    updatePost: async function({id, postInput}, req, res, next){
+        try{
+            if (!req.isAuth) {
+                const error = new Error('Not Authenticated!');
+                error.statusCode = 401;
+                throw error;
+            }
+    
+            const errors = [];
+            if (validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, {
+                    min: 5
+                })) {
+                errors.push({
+                    message: 'Title is invaild'
+                });
+            }
+            if (validator.isEmpty(postInput.content) | !validator.isLength(postInput.content, {
+                    min: 5
+                })) {
+                errors.push({
+                    message: 'Content is invalid'
+                });
+            }
+            if (errors.length > 0) {
+                const error = new Error('Input invalid');
+                error.data = errors;
+                error.statusCode = 422;
+                throw error;
+            }
+    
+            const post = await Post.findById(id);
+            if (!post) {
+                const error = new Error('Post invalid');
+                error.statusCode = 404;
+                throw error;
+            }
+    
+            if (post.creator._id.toString() !== req.userId.toString()) {
+                const error = new Error('Not Authenticated!');
+                error.statusCode = 403;
+                throw error;
+            }
+    
+            post.title = postInput.title;
+            post.content = postInput.content;
+    
+            const updatePost = await post.save();
+    
+            return {
+                ...updatePost._doc,
+                _id: updatePost._id.toString(),
+                createdAt: updatePost.createdAt.toISOString(),
+                updatedAt: updatePost.updatedAt.toISOString()
+            };
+        }catch(err){
+            if(!err.statusCode)
+                err.statusCode = 500;
+    
+            return err;
+        } 
+    },
+
+    deletePost: async function({id}, req, res, next){
+        try{
+            if (!req.isAuth) {
+                const error = new Error('Not Authenticated!');
+                error.statusCode = 401;
+                throw error;
+            }
+
+            const post = await Post.findById(id);
+            if(!post){
+                const error = new Error('Post not found!');
+                error.statusCode = 404;
+                error.data = error;
+                throw error;
+            }
+
+            if(post.creator.toString() !== req.userId){
+                const error = new Error('Not Authenticated');
+                error.statusCode = 403;
+                error.data = error;
+                throw error;
+            }
+
+            await Post.findByIdAndDelete(id);
+
+            const user = await User.findById(req.userId);
+            user.posts.pull(id);
+            await user.save();
+
+            return true;
+        }catch(err){
+            if(!err.statusCode)
+                err.statusCode = 500;
+    
+            return err;
+        } 
     }
 }

@@ -10,7 +10,7 @@ describe('Auth middleware', function(){
             get: function(){
                 return null;
             }
-        }
+        };
 
         authMiddleware(req, {}, () => {});
         expect(req).to.have.property('isAuth', false);
@@ -21,18 +21,18 @@ describe('Auth middleware', function(){
             get: function(){
                 return 'one';
             }
-        }
+        };
 
         authMiddleware(req, {}, () => {});
         expect(req).to.have.property('isAuth', false);
     });
 
-    it('token can not be verified', function(){
+    it('Token can not be verified', function(){
         const req = {
             get: function(){
                 return 'bear one';
             }
-        }
+        };
 
         sinon.stub(jwt, 'verify').returns(null);
 
@@ -47,7 +47,7 @@ describe('Auth middleware', function(){
             get: function(){
                 return 'bear one';
             }
-        }
+        };
 
         sinon.stub(jwt, 'verify').returns({userId: 'abc'});
 

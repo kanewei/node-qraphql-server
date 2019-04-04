@@ -4,13 +4,13 @@ module.exports = (req, res, next) => {
     const authHeader = req.get('Authorization');
     if (!authHeader) {
         req.isAuth = false;
-        return;
+        return next();
     }
 
     const token = authHeader.split(' ')[1];
     if(!token){
         req.isAuth = false;
-        return;
+        return next();
     }
 
     let decodedToken;
@@ -18,15 +18,15 @@ module.exports = (req, res, next) => {
       decodedToken = jwt.verify(token, 'somesupersecretsecret');
     } catch (err) {
       req.isAuth = false;
-      return;
+      return next();
     }
 
     if (!decodedToken) {
       req.isAuth = false;
-      return;
+      return next();
     }
 
     req.userId = decodedToken.userId;
     req.isAuth = true;
-    return;
+    return next();
 }
