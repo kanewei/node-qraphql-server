@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "test-with-coverage": "nyc --reporter=text mocha",
     "start": "nodemon app.js"
   },
   "repository": {
@@ -28,6 +29,7 @@
     "mocha": "^6.0.2",
     "mongoose": "^5.4.21",
     "nodemon": "^1.18.10",
+    "nyc": "^13.3.0",
     "sinon": "^7.3.1",
     "validator": "^10.11.0"
   }
