@@ -169,7 +169,7 @@ describe('User get update delete post', function(){
                 isAuth: false
             };
             
-            postResolver.getPosts({}, req, {}, () => {}).then(result => {
+            postResolver.updatePost({}, req, {}, () => {}).then(result => {
                 expect(result).to.be.an('error');
                 expect(result).to.have.property('statusCode', 401)
             }).then(() => {
@@ -210,8 +210,9 @@ describe('User get update delete post', function(){
                 },
                 id: '5ca32b4b2f606f5cebbe57bf'
             };
-
+            
             sinon.stub(Post, 'findById').returns(null);
+
 
             postResolver.updatePost(query, req, {}, () => {}).then(result => {
                 expect(result).to.be.an('error');

@@ -102,7 +102,7 @@ module.exports = {
                 error.statusCode = 401;
                 throw error;
             }
-    
+
             const errors = [];
             if (validator.isEmpty(postInput.title) || !validator.isLength(postInput.title, {
                     min: 5
@@ -136,12 +136,13 @@ module.exports = {
             const post = new Post({
                 title: postInput.title,
                 content: postInput.content,
-                creator: req.userId
+                creator: user
             });
 
             const createdPost = await post.save();
             user.posts.push(createdPost);
             await user.save();
+
             return {
                 ...createdPost._doc,
                 _id: createdPost._id.toString(),
@@ -151,13 +152,14 @@ module.exports = {
         }catch(err){
             if(!err.statusCode)
                 err.statusCode = 500;
-    
+
             return err;
         }
     },
 
-    getPosts: async function({}, req, res, next){
+    getPosts: async function(args, req, res, next){
         try{
+
             if (!req.isAuth) {
                 const error = new Error('Not Authenticated!');
                 error.data = error;
@@ -165,7 +167,7 @@ module.exports = {
                 throw error;
             }
 
-            const posts = await Post.find();
+            const posts = await Post.find().populate('creator');
 
             return {posts: posts.map(p => {
                 return {
@@ -212,15 +214,16 @@ module.exports = {
                 error.statusCode = 422;
                 throw error;
             }
-    
+
             const post = await Post.findById(id);
+
             if (!post) {
                 const error = new Error('Post invalid');
                 error.statusCode = 404;
                 throw error;
             }
-    
-            if (post.creator._id.toString() !== req.userId.toString()) {
+
+            if (post.creator.toString() !== req.userId.toString()) {
                 const error = new Error('Not Authenticated!');
                 error.statusCode = 403;
                 throw error;
@@ -230,12 +233,14 @@ module.exports = {
             post.content = postInput.content;
     
             const updatePost = await post.save();
-    
+
+            result = await Post.findById(updatePost.id).populate('creator');
+
             return {
-                ...updatePost._doc,
-                _id: updatePost._id.toString(),
-                createdAt: updatePost.createdAt.toISOString(),
-                updatedAt: updatePost.updatedAt.toISOString()
+                ...result._doc,
+                _id: result._id.toString(),
+                createdAt: result.createdAt.toISOString(),
+                updatedAt: result.updatedAt.toISOString()
             };
         }catch(err){
             if(!err.statusCode)

@@ -34,7 +34,7 @@ app.use('/graphql', graphqlHttp({
       if(!err.originalError){
         return err;
       }
-  
+
       const data = err.originalError.data;
       const message = err.message || 'An error!'
       const code = err.originalError.statusCode || 500;
